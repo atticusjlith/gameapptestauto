@@ -74,6 +74,7 @@ pipeline
                             ...
                         }
                     }
+                    echo 'Deployment completed successfully!'
                 }
             }
         }
