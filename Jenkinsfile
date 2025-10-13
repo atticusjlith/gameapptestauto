@@ -3,11 +3,12 @@ pipeline {
 
     environment {
         // Docker Hub credentials ID stored in Jenkins
-        DOCKERHUB_CREDENTIALS = 'cybr-3120'
-        IMAGE_NAME = 'litattj/atticusgametest123'
+        DOCKERHUB_CREDENTIALS ='cybr-3120'
+        IMAGE_NAME ='amalan06/amalangametest123'
     }
 
     stages {
+
         stage('Cloning Git') {
             steps {
                 checkout scm
@@ -16,14 +17,17 @@ pipeline {
 
         stage('SAST') {
             steps {
-                sh 'echo Running SAST scan with Snyk...'
+                sh 'echo Running SAST scan...'
             }
         }
 
-        stage('BUILD-AND-TAG') {
-            agent { label 'CYBR-3120-app-server2' }
+      stage('BUILD-AND-TAG') {
+            agent {
+                label 'CYBR3120-01-app-server'
+            }
             steps {
                 script {
+                    // Build Docker image using Jenkins Docker Pipeline API
                     echo "Building Docker image ${IMAGE_NAME}..."
                     app = docker.build("${IMAGE_NAME}")
                     app.tag("latest")
@@ -31,7 +35,11 @@ pipeline {
             }
         }
 
-        stage('POST-TO-DOCKERHUB') {
+
+        stage('POST-TO-DOCKERHUB') {    
+            agent {
+                label 'CYBR3120-01-app-server'
+            }
             steps {
                 script {
                     echo "Pushing image ${IMAGE_NAME}:latest to Docker Hub..."
@@ -42,17 +50,31 @@ pipeline {
             }
         }
 
-        stage('DAST') {
+        stage('SECURITY-IMAGE-SCANNER') {
             steps {
-                sh 'echo Running DAST scan...'
+                sh 'echo Scanning Docker image for vulnerabilities...'
             }
         }
 
-        stage('DEPLOYMENT') {
-            agent { label 'CYBR-3120-app-server2' }
+        stage('Pull-image-server') {
             steps {
+                sh 'echo Pulling image on server...'
+            }
+        }
+
+        stage('DAST') {
+            steps {
+                sh 'echo Performing DAST scan...'
+            }
+        }
+
+        stage('DEPLOYMENT') {    
+            agent {
+                label 'CYBR3120-01-app-server'
+            }
+            steps {
+                echo 'Starting deployment using docker-compose...'
                 script {
-                    echo 'Starting deployment using docker-compose...'
                     dir("${WORKSPACE}") {
                         sh '''
                             docker-compose down
@@ -60,9 +82,9 @@ pipeline {
                             docker ps
                         '''
                     }
-                    echo 'Deployment completed successfully!'
                 }
+                echo 'Deployment completed successfully!'
             }
         }
-    }
-}
+    }  
+}  
