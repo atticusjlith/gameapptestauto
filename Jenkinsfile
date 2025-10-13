@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Docker Hub credentials ID stored in Jenkins
         DOCKERHUB_CREDENTIALS ='cybr-3120'
-        IMAGE_NAME ='amalan06/amalangametest123'
+        IMAGE_NAME ='litattj/atticusgametest123'
     }
 
     stages {
@@ -23,7 +23,7 @@ pipeline {
 
       stage('BUILD-AND-TAG') {
             agent {
-                label 'CYBR3120-01-app-server'
+                label 'CYBR-3120-app-server'
             }
             steps {
                 script {
@@ -38,7 +38,7 @@ pipeline {
 
         stage('POST-TO-DOCKERHUB') {    
             agent {
-                label 'CYBR3120-01-app-server'
+                label 'CYBR-3120-app-server'
             }
             steps {
                 script {
@@ -70,7 +70,7 @@ pipeline {
 
         stage('DEPLOYMENT') {    
             agent {
-                label 'CYBR3120-01-app-server'
+                label 'CYBR-3120-app-server'
             }
             steps {
                 echo 'Starting deployment using docker-compose...'
